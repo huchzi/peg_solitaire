@@ -95,6 +95,7 @@ func Init() {
 	AllFields["24"].Toggle()
 	MakeClickable()
 	GameState.History = make([]string, 0)
+	GameState.nMoves = 0
 }
 
 func MakeClickable() {
@@ -192,14 +193,8 @@ func (f *Field) Jump(jt JumpType) {
 	}
 	f.Toggle()
 	MakeClickable()
-	n := 1
-	thisMove := f.FieldID + string(jt)
-	for _, mv := range GameState.History {
-		if strings.HasSuffix(mv, thisMove) {
-			n += 1
-		}
-	}
-	thisMove = fmt.Sprintf("(%d) %s", n, thisMove)
+	GameState.nMoves += 1
+	thisMove := fmt.Sprintf("(%d) %s", GameState.nMoves, f.FieldID+string(jt))
 	GameState.History = append(GameState.History, thisMove)
 }
 
