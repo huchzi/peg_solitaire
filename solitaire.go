@@ -58,6 +58,9 @@ var NonExistant = Field{
 var AllFields = make(map[string]*Field, 0)
 var templates = template.Must(template.ParseFiles("playingField.html"))
 
+var rows = []string{"1", "2", "3", "4", "5", "6", "7"}
+var cols = []string{"A", "B", "C", "D", "E", "F", "G"}
+
 var GameState = struct {
 	PlayingField  [][]Field
 	Choice        ButtonEnabled
@@ -80,8 +83,9 @@ func Init() {
 	}
 	for i := range GameState.PlayingField {
 		for j := range GameState.PlayingField[i] {
-			GameState.PlayingField[i][j].FieldID = fmt.Sprint(i*7 + j)
-			AllFields[fmt.Sprint(i*7+j)] = &GameState.PlayingField[i][j]
+			fieldID := cols[j] + rows[i]
+			GameState.PlayingField[i][j].FieldID = fieldID
+			AllFields[fieldID] = &GameState.PlayingField[i][j]
 			if j > 0 && j < 6 {
 				GameState.PlayingField[i][j].HorizontalNeighbors[0] = &GameState.PlayingField[i][j-1]
 				GameState.PlayingField[i][j].HorizontalNeighbors[1] = &GameState.PlayingField[i][j+1]
@@ -92,7 +96,7 @@ func Init() {
 			}
 		}
 	}
-	AllFields["24"].Toggle()
+	AllFields["D4"].Toggle()
 	MakeClickable()
 	GameState.History = make([]string, 0)
 	GameState.nMoves = 0

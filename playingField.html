@@ -66,7 +66,7 @@
             {{range .}}
             <td> 
                 <form action="/" method="POST">
-                    <button class={{ .Class }} {{ .Clickable }} type="submit" id="fieldID" name="field" value={{ .FieldID }}>
+                    <button class={{ .Class }} {{ .Clickable }} type="submit" title={{.FieldID}} id="fieldID" name="field" value={{ .FieldID }}>
                         {{ .Arrow }}
                     </button>
                 </form> 
