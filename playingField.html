@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<meta charset="UTF-8"> 
+
+<html>
+
+<head>
+
+  <title> Cord's solitaire </title>
+  <style>
+    html {
+        width: 15cm;
+        height: 15cm;
+    }
+    .field {
+        width: 1.2cm; height: 1.2cm;
+        font-size: larger;
+    }
+    .noStone {
+        width: 1.2cm; height: 1.2cm;
+        color:white;
+        background-color: white;
+    }
+    .selector {
+        width: 1.2cm; height: 1.2cm;
+        background-color: green;
+    }
+    .stone {
+        width: 1.2cm; height: 1.2cm;
+        background-color: red;
+        font-size: larger;
+    }
+    .stone[disabled] {
+        width: 1.2cm; height: 1.2cm;
+        color:red;
+        background-color: red;
+    }
+    .stone[disabled]:hover {
+        width: 1.2cm; height: 1.2cm;
+        color:red;
+        background-color: red;
+    }
+    .stone:hover {
+        width: 1.2cm; height: 1.2cm;
+        background-color: darkred;
+    }
+    .nothing {
+        color: white;
+        background-color: white;
+        border: 0px;
+    }
+    .container {
+        display: flex;
+        align-items: center;
+    }
+    td { width: 1.2cm; height: 1.2cm; }
+  </style>
+
+</head>
+
+<body>
+    <div class="container">
+
+    <table>  
+        {{ range .PlayingField }} 
+        <tr>
+            {{range .}}
+            <td> 
+                <form action="/" method="POST">
+                    <button class={{ .Class }} {{ .Clickable }} type="submit" id="fieldID" name="field" value={{ .FieldID }}>
+                        {{ .Arrow }}
+                    </button>
+                </form> 
+            </td>
+            {{ end }}
+        </tr>
+        {{ end }}
+    </table>
+
+    <div style="height:2.4cm; width:1.2cm; padding: auto; margin-left: 5px">
+        <form action="/" method="POST">
+            <button type="submit" class = "field" {{ .Choice }} id="horizontal" name="field" value="Horizontal">
+                {{ .Button1 }}
+            </button>
+            <button type="submit"  class = "field" {{ .Choice }} id="vertical" name="field" value="Vertical">
+                {{ .Button2 }}
+            </button>
+        </form> 
+    </div>
+
+    <div>
+    <div style="height: 5cm; width: 2cm; overflow-y: scroll; border: 1px solid black; margin-left: 5px;">
+        
+        <form action="/" method="POST">
+            {{ range .History}}
+                <input type="submit" style="width: 2cm; border: 0px; background-color: white;" id={{.}} name="field" value={{.}}><br>
+            {{ end }}
+        </form>
+
+
+
+    </div>
+    <br>
+    <form action="/" method="POST">
+        <button style="margin-left: 5px; width: 2cm;", type="submit" id="undo" name="field" value="Undo" >
+            Undo
+        </button>
+    </form>
+    </div>
+
+    </div>
+
+    <form action="/" method = "POST" style="clear: both">
+        <input type="submit" id="fieldID" name="field" value="Reset">
+    </form>
+
+
+
+
+</body>
+
+</html>
