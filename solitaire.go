@@ -145,7 +145,11 @@ func drawPlayingField(w http.ResponseWriter, r *http.Request) {
 		GameState.Choice = invisible
 		GameState.SelectedField.Jump(vertical)
 	case sel == "Undo":
-		if len(GameState.History) > 1 {
+		switch len(GameState.History) {
+		case 0:
+		case 1:
+			Init()
+		default:
 			GoToHistory(GameState.History[len(GameState.History)-2])
 		}
 	case strings.HasSuffix(sel, "H") || strings.HasSuffix(sel, "V"):

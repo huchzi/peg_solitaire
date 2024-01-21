@@ -8,6 +8,7 @@
   <title> Cord's solitaire </title>
   <style>
     header {
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
         font-size:35px;
         text-align: center;
         background-color:#0b27e3;
@@ -20,6 +21,14 @@
         padding:1%;
         margin:5%;
         align-content: center;
+    }
+    manual {
+        padding-left:10%;
+        padding-right: 10%;
+        padding-bottom: 2%;
+        padding-top: 2%;
+        align-content: center;
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     }
     td { width: 1.5cm; height: 1.5cm; }
     .field {
@@ -90,7 +99,7 @@
         {{ end }}
     </table>
 
-    <div style="height:2.4cm; width:1.5cm; padding: auto; margin-left: 5px">
+    <div style="height:2.4cm; min-width: 1.5cm; padding: auto; margin-left: 5px">
         <form action="/" method="POST">
             <button type="submit" class = "field" {{ .Choice }} id="horizontal" name="field" value="Horizontal">
                 {{ .Button1 }}
@@ -120,6 +129,21 @@
         </button>
     </form>
     </div>
+
+    <manual>
+        <h1>Instructions</h1>
+        <p>This is a very old version of solitaire. The goal of this game is to remove all stones but one. 
+        Stones are removed when a neighoring stone jumps across them onto a free field. Here, the stones that
+        can be removed are highlighted in yellow and marked with one or two arrows that mark the possible direction of a stone.
+        If there are two possible jumps across one stone, just click on that stone and select a direction using the two buttons
+        that appear to the right of the field. </p>
+
+        <p>Moves are recorded in a history field. The entry shows the number of the move, the field (columns: A-G, rows: 1:7), and 
+        the direction (H: horizontal, V: vertical).</p>
+
+        <p>You can undo the last move by pressing undo, and you can rewind to an earlier move by clicking on the move in the history.
+        Remember that you may have to scroll down.</p>
+    </manual>
 
     </div>
 
