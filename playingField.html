@@ -7,43 +7,56 @@
 
   <title> Cord's solitaire </title>
   <style>
-    html {
-        width: 15cm;
-        height: 15cm;
+    header {
+        font-size:35px;
+        text-align: center;
+        background-color:#0b27e3;
+        color: #fff800;
+        height:8%;
+        padding:2%;
     }
+    section {
+        border: 1px black solid;
+        padding:1%;
+        margin:5%;
+        align-content: center;
+    }
+    td { width: 1.5cm; height: 1.5cm; }
     .field {
-        width: 1.2cm; height: 1.2cm;
+        width: 1.5cm; height: 1.5cm;
         font-size: larger;
+        background-color: #2196F3;
     }
     .noStone {
-        width: 1.2cm; height: 1.2cm;
+        width: 1.5cm; height: 1.5cm;
         color:white;
         background-color: white;
     }
     .selector {
-        width: 1.2cm; height: 1.2cm;
+        width: 1.5cm; height: 1.5cm;
         background-color: green;
     }
     .stone {
-        width: 1.2cm; height: 1.2cm;
-        background-color: red;
+        width: 1.5cm; height: 1.5cm;
+        background-color: #fff800;
         font-size: larger;
     }
     .stone[disabled] {
-        width: 1.2cm; height: 1.2cm;
-        color:red;
-        background-color: red;
+        width: 1.5cm; height: 1.5cm;
+        color:#0097ff;
+        background-color: #0097ff;
     }
     .stone[disabled]:hover {
-        width: 1.2cm; height: 1.2cm;
-        color:red;
-        background-color: red;
+        width: 1.5cm; height: 1.5cm;
+        color:#0097ff;
+        background-color: #0097ff;
     }
     .stone:hover {
-        width: 1.2cm; height: 1.2cm;
+        width: 1.5cm; height: 1.5cm;
         background-color: darkred;
     }
     .nothing {
+        width: 1.5cm; height: 1.5cm;
         color: white;
         background-color: white;
         border: 0px;
@@ -52,12 +65,13 @@
         display: flex;
         align-items: center;
     }
-    td { width: 1.2cm; height: 1.2cm; }
   </style>
 
 </head>
 
 <body>
+    <header> Cord's Peg Solitaire</header>
+    <section>
     <div class="container">
 
     <table>  
@@ -76,7 +90,7 @@
         {{ end }}
     </table>
 
-    <div style="height:2.4cm; width:1.2cm; padding: auto; margin-left: 5px">
+    <div style="height:2.4cm; width:1.5cm; padding: auto; margin-left: 5px">
         <form action="/" method="POST">
             <button type="submit" class = "field" {{ .Choice }} id="horizontal" name="field" value="Horizontal">
                 {{ .Button1 }}
@@ -88,11 +102,11 @@
     </div>
 
     <div>
-    <div style="height: 5cm; width: 2cm; overflow-y: scroll; border: 1px solid black; margin-left: 5px;">
+    <div style="height: 5cm; width: 2cm; overflow: auto; display: flex; border: 1px solid black; margin-left: 5px; background-color: #2196F357;">
         
         <form action="/" method="POST">
             {{ range .History}}
-                <input type="submit" style="width: 2cm; border: 0px; background-color: white;" id={{.}} name="field" value={{.}}><br>
+                <input type="submit" style="width: 2cm; border: 0px; background-color: #2196F357;" id={{.}} name="field" value={{.}}><br>
             {{ end }}
         </form>
 
@@ -112,6 +126,7 @@
     <form action="/" method = "POST" style="clear: both">
         <input type="submit" id="fieldID" name="field" value="Reset">
     </form>
+    </section>
 
 
 
