@@ -1,10 +1,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -131,6 +133,7 @@ func GoToHistory(goTo string) {
 			break
 		}
 	}
+	GameState.History = backupHistory
 }
 
 func drawPlayingField(w http.ResponseWriter, r *http.Request) {
@@ -138,6 +141,18 @@ func drawPlayingField(w http.ResponseWriter, r *http.Request) {
 	switch {
 	case sel == "Reset":
 		Init()
+	case sel == "Save History":
+		history, _ := json.Marshal(GameState.History)
+		os.WriteFile("history.solitaire", history, os.ModeAppend)
+	case sel == "Load History":
+		jsn, err := os.ReadFile("history.solitaire")
+		if err != nil {
+			panic("Unable to read file.")
+		}
+		err = json.Unmarshal(jsn, &(GameState.History))
+		if err != nil {
+			panic("Cannot marshall history.")
+		}
 	case sel == "Horizontal":
 		GameState.Choice = invisible
 		GameState.SelectedField.Jump(horizontal)
@@ -151,6 +166,7 @@ func drawPlayingField(w http.ResponseWriter, r *http.Request) {
 			Init()
 		default:
 			GoToHistory(GameState.History[len(GameState.History)-2])
+			GameState.History = GameState.History[0 : len(GameState.History)-1]
 		}
 	case strings.HasSuffix(sel, "H") || strings.HasSuffix(sel, "V"):
 		GoToHistory(sel)
@@ -174,7 +190,6 @@ func drawPlayingField(w http.ResponseWriter, r *http.Request) {
 			thisField.Jump(thisField.PossibleJumpType)
 		}
 	}
-
 	templates.ExecuteTemplate(w, "playingField.html", GameState)
 }
 
