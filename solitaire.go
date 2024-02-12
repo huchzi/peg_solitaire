@@ -37,7 +37,7 @@ const (
 type Field struct {
 	FieldID             string
 	Class               template.CSS
-	Clickable           template.HTMLAttr
+	Clickable           ButtonEnabled
 	HorizontalNeighbors [2]*Field
 	VerticalNeighbors   [2]*Field
 	PossibleJumpType    JumpType
@@ -57,7 +57,6 @@ var NonExistant = Field{
 	Class:     "nothing",
 	Clickable: "disabled"}
 
-var AllFields = make(map[string]*Field, 0)
 var templates = template.Must(template.ParseFiles("playingField.html"))
 
 var rows = []string{"1", "2", "3", "4", "5", "6", "7"}
@@ -65,6 +64,7 @@ var cols = []string{"A", "B", "C", "D", "E", "F", "G"}
 
 var GameState = struct {
 	PlayingField  [][]Field
+	AllFields     map[string]*Field
 	Choice        ButtonEnabled
 	Button1       string
 	Button2       string
@@ -75,6 +75,7 @@ var GameState = struct {
 }{Choice: invisible, Direction: horizontal, Button1: "O", Button2: "O"}
 
 func Init() {
+	GameState.AllFields = make(map[string]*Field, 0)
 	GameState.PlayingField = make([][]Field, 7)
 	for i := range GameState.PlayingField {
 		if i > 1 && i < 5 {
@@ -87,7 +88,7 @@ func Init() {
 		for j := range GameState.PlayingField[i] {
 			fieldID := cols[j] + rows[i]
 			GameState.PlayingField[i][j].FieldID = fieldID
-			AllFields[fieldID] = &GameState.PlayingField[i][j]
+			GameState.AllFields[fieldID] = &GameState.PlayingField[i][j]
 			if j > 0 && j < 6 {
 				GameState.PlayingField[i][j].HorizontalNeighbors[0] = &GameState.PlayingField[i][j-1]
 				GameState.PlayingField[i][j].HorizontalNeighbors[1] = &GameState.PlayingField[i][j+1]
@@ -98,18 +99,18 @@ func Init() {
 			}
 		}
 	}
-	AllFields["D4"].Toggle()
-	MakeClickable()
+	GameState.AllFields["D4"].Toggle()
+	UpdatePossibleMoves()
 	GameState.History = make([]string, 0)
 	GameState.nMoves = 0
 }
 
-func MakeClickable() {
-	for _, field := range AllFields {
-		field.Clickable = "disabled"
+func UpdatePossibleMoves() {
+	for _, field := range GameState.AllFields {
+		field.Clickable = disabled
 		field.Arrow = ""
 	}
-	for _, field := range AllFields {
+	for _, field := range GameState.AllFields {
 		field.MovePossible(horizontal)
 		field.MovePossible(vertical)
 	}
@@ -123,11 +124,11 @@ func GoToHistory(goTo string) {
 		if strings.HasSuffix(mv, "H") {
 			field := strings.Split(mv, " ")[1]
 			field, _ = strings.CutSuffix(field, "H")
-			AllFields[field].Jump(horizontal)
+			GameState.AllFields[field].Jump(horizontal)
 		} else {
 			field := strings.Split(mv, " ")[1]
 			field, _ = strings.CutSuffix(field, "V")
-			AllFields[field].Jump(vertical)
+			GameState.AllFields[field].Jump(vertical)
 		}
 		if mv == goTo {
 			break
@@ -172,7 +173,7 @@ func drawPlayingField(w http.ResponseWriter, r *http.Request) {
 		GoToHistory(sel)
 	case sel == "":
 	default:
-		thisField := AllFields[r.FormValue("field")]
+		thisField := GameState.AllFields[r.FormValue("field")]
 		if thisField == nil {
 			break
 		}
@@ -182,7 +183,7 @@ func drawPlayingField(w http.ResponseWriter, r *http.Request) {
 			GameState.Button2 = strings.Split(thisField.Arrow, "")[1]
 			GameState.SelectedField = thisField
 			thisField.Class = "selector"
-			for _, field := range AllFields {
+			for _, field := range GameState.AllFields {
 				field.Clickable = "disabled"
 				field.Arrow = ""
 			}
@@ -215,7 +216,7 @@ func (f *Field) Jump(jt JumpType) {
 		f.VerticalNeighbors[1].Toggle()
 	}
 	f.Toggle()
-	MakeClickable()
+	UpdatePossibleMoves()
 	GameState.nMoves += 1
 	thisMove := fmt.Sprintf("(%d) %s", GameState.nMoves, f.FieldID+string(jt))
 	GameState.History = append(GameState.History, thisMove)
