@@ -76,6 +76,7 @@ type GameState struct {
 
 var MainState = GameState{Choice: invisible, Direction: horizontal, Button1: "O", Button2: "O"}
 
+// Init sets up the playing field and the game state in a GameState struct
 func Init() {
 	MainState.AllFields = make(map[string]*Field, 0)
 	MainState.PlayingField = make([][]Field, 7)
@@ -107,6 +108,7 @@ func Init() {
 	MainState.nMoves = 0
 }
 
+// UpdatePossibleMoves identifies possible moves in the playing field in the GameState "st".
 func (st *GameState) UpdatePossibleMoves() {
 	for _, field := range st.AllFields {
 		field.Clickable = disabled
@@ -118,6 +120,71 @@ func (st *GameState) UpdatePossibleMoves() {
 	}
 }
 
+// MovePossible checks for possible moves in "f" and changes the state of "f" when a move is possible.
+func (f *Field) MovePossible(jt JumpType) {
+	var n1 *Field
+	var n2 *Field
+	var a1, a2 string
+	if jt == horizontal {
+		n1 = f.HorizontalNeighbors[0]
+		n2 = f.HorizontalNeighbors[1]
+		a1, a2 = rightArrow, leftArrow
+	} else {
+		n1 = f.VerticalNeighbors[0]
+		n2 = f.VerticalNeighbors[1]
+		a1, a2 = downArrow, upArrow
+	}
+	switch {
+	case f.Class == "noStone":
+		f.Clickable = "disabled"
+	case n1 == nil || n2 == nil:
+	case n1.Class == "nothing" || n2.Class == "nothing":
+	case n1.Class == "stone":
+		if n2.Class == "noStone" {
+			f.Clickable = ""
+			f.PossibleJumpType = jt
+			f.Arrow = f.Arrow + a1
+		}
+	case n1.Class == "noStone":
+		if n2.Class == "stone" {
+			f.Clickable = ""
+			f.PossibleJumpType = jt
+			f.Arrow = f.Arrow + a2
+		}
+	}
+}
+
+// Toogle changes the state of a field from "Stone" to "NoStone" or vice versa.
+func (f *Field) Toggle() {
+	var fNew Field
+	if f.Class == "noStone" {
+		fNew = Stone
+	} else {
+		fNew = NoStone
+	}
+	fNew.FieldID = f.FieldID
+	fNew.HorizontalNeighbors = f.HorizontalNeighbors
+	fNew.VerticalNeighbors = f.VerticalNeighbors
+	*f = fNew
+}
+
+// Jump performs a jump by modifying the field and updating the game state.
+func (f *Field) Jump(jt JumpType) {
+	if jt == horizontal {
+		f.HorizontalNeighbors[0].Toggle()
+		f.HorizontalNeighbors[1].Toggle()
+	} else {
+		f.VerticalNeighbors[0].Toggle()
+		f.VerticalNeighbors[1].Toggle()
+	}
+	f.Toggle()
+	MainState.UpdatePossibleMoves()
+	MainState.nMoves += 1
+	thisMove := fmt.Sprintf("(%d) %s", MainState.nMoves, f.FieldID+string(jt))
+	MainState.History = append(MainState.History, thisMove)
+}
+
+// GoToHistory reverts the gamestate to an earlier state defined by the last move.
 func GoToHistory(goTo string) {
 	var backupHistory []string = make([]string, len(MainState.History))
 	copy(backupHistory, MainState.History)
@@ -139,7 +206,8 @@ func GoToHistory(goTo string) {
 	MainState.History = backupHistory
 }
 
-func drawPlayingField(w http.ResponseWriter, r *http.Request) {
+// Update listens for user input and reacts according to the value of the input form field "field".
+func Update(w http.ResponseWriter, r *http.Request) {
 	sel := r.FormValue("field")
 	switch {
 	case sel == "Reset":
@@ -196,72 +264,11 @@ func drawPlayingField(w http.ResponseWriter, r *http.Request) {
 	templates.ExecuteTemplate(w, "playingField.html", MainState)
 }
 
-func (f *Field) Toggle() {
-	var fNew Field
-	if f.Class == "noStone" {
-		fNew = Stone
-	} else {
-		fNew = NoStone
-	}
-	fNew.FieldID = f.FieldID
-	fNew.HorizontalNeighbors = f.HorizontalNeighbors
-	fNew.VerticalNeighbors = f.VerticalNeighbors
-	*f = fNew
-}
-
-func (f *Field) Jump(jt JumpType) {
-	if jt == horizontal {
-		f.HorizontalNeighbors[0].Toggle()
-		f.HorizontalNeighbors[1].Toggle()
-	} else {
-		f.VerticalNeighbors[0].Toggle()
-		f.VerticalNeighbors[1].Toggle()
-	}
-	f.Toggle()
-	MainState.UpdatePossibleMoves()
-	MainState.nMoves += 1
-	thisMove := fmt.Sprintf("(%d) %s", MainState.nMoves, f.FieldID+string(jt))
-	MainState.History = append(MainState.History, thisMove)
-}
-
-func (f *Field) MovePossible(jt JumpType) {
-	var n1 *Field
-	var n2 *Field
-	var a1, a2 string
-	if jt == horizontal {
-		n1 = f.HorizontalNeighbors[0]
-		n2 = f.HorizontalNeighbors[1]
-		a1, a2 = rightArrow, leftArrow
-	} else {
-		n1 = f.VerticalNeighbors[0]
-		n2 = f.VerticalNeighbors[1]
-		a1, a2 = downArrow, upArrow
-	}
-	switch {
-	case f.Class == "noStone":
-		f.Clickable = "disabled"
-	case n1 == nil || n2 == nil:
-	case n1.Class == "nothing" || n2.Class == "nothing":
-	case n1.Class == "stone":
-		if n2.Class == "noStone" {
-			f.Clickable = ""
-			f.PossibleJumpType = jt
-			f.Arrow = f.Arrow + a1
-		}
-	case n1.Class == "noStone":
-		if n2.Class == "stone" {
-			f.Clickable = ""
-			f.PossibleJumpType = jt
-			f.Arrow = f.Arrow + a2
-		}
-	}
-}
-
 func main() {
 
 	Init()
 
-	http.HandleFunc("/", drawPlayingField)
+	http.HandleFunc("/", Update)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
 }
