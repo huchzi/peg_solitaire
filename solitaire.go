@@ -76,7 +76,7 @@ type GameState struct {
 
 var MainState = GameState{Choice: invisible, Direction: horizontal, Button1: "O", Button2: "O"}
 
-// Init sets up the playing field and the game state in a GameState struct
+// Init sets up the playing field and the game state in a GameState struct.8
 func Init() {
 	MainState.AllFields = make(map[string]*Field, 0)
 	MainState.PlayingField = make([][]Field, 7)
@@ -213,8 +213,14 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	case sel == "Reset":
 		Init()
 	case sel == "Save History":
-		history, _ := json.Marshal(MainState.History)
-		os.WriteFile("history.solitaire", history, os.ModeAppend)
+		history, err := json.Marshal(MainState.History)
+		if err != nil {
+			fmt.Println(err)
+		}
+		err = os.WriteFile("history.solitaire", history, os.ModeAppend)
+		if err != nil {
+			fmt.Println(err)
+		}
 	case sel == "Load History":
 		jsn, err := os.ReadFile("history.solitaire")
 		if err != nil {
